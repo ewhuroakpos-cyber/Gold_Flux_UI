@@ -58,10 +58,10 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
           className={`flex-1 transition-all duration-300 ${
             showSidebar 
               ? 'pt-20 lg:ml-64 lg:pl-8 lg:pr-8' 
-              : 'pt-16 md:pt-20 px-10'
+              : 'pt-10 md:pt-20 px-2 md:px-8'
           }`}
         >
-          <div className="max-w-screen p-4">
+          <div className="w-full max-w-screen p-2">
             {children}
           </div>
         </main>
