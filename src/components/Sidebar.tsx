@@ -35,7 +35,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isAdmin }) => {
   return (
     <>
       {/* Hamburger button - only on mobile */}
-      <div className="lg:hidden fixed top-40 left-2 z-50 w-6">
+      <div className="lg:hidden flex fixed top-40 left-2 z-50 w-6">
         <button onClick={() => setMobileOpen(true)} className="bg-[var(--accent-dark)] space-y-1.5">
           <div className="w-4 h-0.5 bg-[var(--accent)]"></div>
           <div className="w-4 h-0.5 bg-[var(--accent)]"></div>
