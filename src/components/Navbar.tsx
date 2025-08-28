@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTheme } from '../ThemeContext';
 import { useToast } from './Toast';
@@ -12,6 +12,7 @@ interface User {
   wallet: {
     balance: number;
     gold_holdings: number;
+    address: string;
   };
 }
 
@@ -37,8 +38,8 @@ const Navbar = () => {
       setIsAuthenticated(authenticated);
       
       if (authenticated) {
-        setUser(authService.getCurrentUser());
-        setCurrentUser(authService.getCurrentUser());
+        setUser(await authService.getCurrentUser());
+        setCurrentUser(await authService.getCurrentUser());
       }
     } catch (error) {
       setIsAuthenticated(false);

@@ -15,7 +15,6 @@ const PortfolioStats: React.FC<PortfolioStatsProps> = ({
   totalValue,
   cashBalance,
   goldValue,
-  totalInvested,
   profitLoss,
   profitLossPercentage,
   goldPrice,

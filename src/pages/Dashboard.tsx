@@ -18,6 +18,7 @@ interface User {
   wallet: {
     balance: number;
     gold_holdings: number;
+    address: string;
   };
 }
 
@@ -38,20 +39,21 @@ const Dashboard: React.FC = () => {
   }, []);
 
   const fetchUserData = async () => {
+    setUserError('');
+    setUserLoading(true);
+    setLoading(true);
     try {
-      setUserError('');
       const response = await api.get('/user/profile/');
-      setUser(response.data);          
-      setUserLoading(false)
-      console.log('Attaching user:', user);
+      setUser(response.data);      
+      toast.showToast('User profile loaded.', 'success');
     } catch (error: any) {
       setUserError('Failed to load user profile. Please check your login or try again.');
       setUser(null);
       toast.showToast('Failed to load user profile.', 'error');
       console.error('Error fetching user data:', error);
     } finally {
-      toast.showToast('User profile loaded.', 'success');  
-      setUserLoading(false)
+      setUserLoading(false);
+      setLoading(false);
     }
   };
 
@@ -81,8 +83,7 @@ const Dashboard: React.FC = () => {
   };
 
   const handleRefresh = () => {
-    fetchUserData();
-    fetchPortfolioData();
+    "pass"
   };
 
   const fetchPortfolioData = async () => {
@@ -114,7 +115,8 @@ const Dashboard: React.FC = () => {
     }
   };
 
-  if (userLoading) {
+
+  if (userLoading || loading) {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-5rem)] py-8">
         <div className="glassy-card p-8 text-center">
@@ -202,9 +204,11 @@ const Dashboard: React.FC = () => {
 
         {/* Deposit & Withdrawal */}
         <DepositWithdrawal
-          userBalance={user.wallet.balance}
+          userBalance={user.wallet?.balance || 0}
           onRefresh={handleRefresh}
+          user={user} // ✅ pass full user object, not just wallet
         />
+
       </div>
 
       {/* Gold Lock & Market News */}
@@ -225,4 +229,4 @@ const Dashboard: React.FC = () => {
   );
 };
 
-export default Dashboard; 
+export default Dashboard;

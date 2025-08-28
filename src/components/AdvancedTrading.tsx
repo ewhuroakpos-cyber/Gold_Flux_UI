@@ -9,7 +9,6 @@ interface AdvancedTradingProps {
 
 const AdvancedTrading: React.FC<AdvancedTradingProps> = ({
   goldPrice,
-  userBalance,
   onTransaction
 }) => {
   const [orderType, setOrderType] = useState<'MARKET' | 'LIMIT' | 'STOP'>('MARKET');

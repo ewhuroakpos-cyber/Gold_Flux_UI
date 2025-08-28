@@ -85,14 +85,6 @@ const MarketNews: React.FC = () => {
     }
   };
 
-  const getSentimentColor = (sentiment: string) => {
-    switch (sentiment) {
-      case 'positive': return 'text-green-400';
-      case 'negative': return 'text-red-400';
-      default: return 'text-gray-400';
-    }
-  };
-
   const getSentimentIcon = (sentiment: string) => {
     switch (sentiment) {
       case 'positive': return '📈';

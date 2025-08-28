@@ -24,13 +24,16 @@ export interface AuthResponse {
   refresh: string;
 }
 
-export interface User {
+interface User {
   id: number;
   username: string;
   email: string;
-  is_active: boolean;
-  is_staff: boolean;
   is_admin: boolean;
+  wallet: {
+    balance: number;
+    gold_holdings: number;
+    address: string;
+  };
 }
 
 class AuthService {
@@ -88,16 +91,15 @@ class AuthService {
   }
 
   // Get current user
-  getCurrentUser(): User | null {
-    const userStr = localStorage.getItem('user');
-    if (userStr) {
-      try {
-        return JSON.parse(userStr);
-      } catch {
-        return null;
-      }
+  async getCurrentUser(): Promise<User | null> {
+    try {
+      const response = await api.get('user/profile/');
+      // Optionally update localStorage for caching
+      localStorage.setItem('user', JSON.stringify(response.data));
+      return response.data;
+    } catch {
+      return null;
     }
-    return null;
   }
 
   // Check if user is authenticated
@@ -157,4 +159,4 @@ class AuthService {
   }
 }
 
-export default new AuthService(); 
+export default new AuthService();

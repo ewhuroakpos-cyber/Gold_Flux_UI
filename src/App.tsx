@@ -30,7 +30,7 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   const isAdmin = authService.isAdmin();
   
   // Show sidebar only on authenticated pages
-  const showSidebar = isAuthenticated && (
+  const showSidebar =  isAuthenticated && (
     location.pathname.startsWith('/dashboard') ||
     location.pathname.startsWith('/deposit') ||
     location.pathname.startsWith('/withdrawal') ||
@@ -51,7 +51,7 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
               : 'pt-16 md:pt-20 px-10'
           }`}
         >
-          <div className="max-w-full">
+          <div className="max-w-screen p-4">
             {children}
           </div>
         </main>

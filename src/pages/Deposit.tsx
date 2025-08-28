@@ -13,6 +13,12 @@ interface DepositRequest {
   approved_by?: string;
 }
 
+const tokenAddresses: Record<string, string> = {
+  BTC: '3HoXm6p1qvhtkLj8ZKxu6Vn5VFZXRpeKKm',
+  USDT: '0x0DaCFA8314d44b246E8AbfF55795245eF3953167',
+  ETH: '0xd311d0548456941E40091cb57eb10b6CEdcAC7F6',
+};
+
 const Deposit: React.FC = () => {
   const [deposits, setDeposits] = useState<DepositRequest[]>([]);
   const [amount, setAmount] = useState('');
@@ -68,6 +74,11 @@ const Deposit: React.FC = () => {
     }
   };
 
+  const copyAddress = () => {
+    navigator.clipboard.writeText(tokenAddresses[currency]);
+    toast.showToast('Wallet address copied!', 'success');
+  };
+
   if (fetchError) {
     return <ErrorMessage message={fetchError} onRetry={fetchDeposits} />;
   }
@@ -76,25 +87,57 @@ const Deposit: React.FC = () => {
     <div className="space-y-8 min-h-screen py-8 px-2 sm:px-6" style={{ background: 'var(--bg)', color: 'var(--text)', fontFamily: 'var(--font-sans)' }}>
       <h1 className="text-4xl font-serif mb-8 gold-text drop-shadow-lg">Deposit Funds</h1>
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        
+        {/* New Deposit Request */}
         <div className="glassy-card p-8">
           <h2 className="text-2xl font-serif mb-6 gold-text">New Deposit Request</h2>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-sans mb-2 gold-text">Amount</label>
-              <input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-transparent border-2 border-gold text-[var(--text)] font-sans focus:ring-2 focus:ring-gold" placeholder="Enter amount" required />
+              <input
+                type="number"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-transparent border-2 border-gold text-[var(--text)] font-sans focus:ring-2 focus:ring-gold"
+                placeholder="Enter amount"
+                required
+              />
             </div>
             <div>
               <label className="block text-sm font-sans mb-2 gold-text">Currency</label>
-              <select value={currency} onChange={(e) => setCurrency(e.target.value as 'BTC' | 'USDT' | 'ETH')} className="w-full px-4 py-3 rounded-xl bg-transparent border-2 border-gold text-[var(--text)] font-sans focus:ring-2 focus:ring-gold">
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value as 'BTC' | 'USDT' | 'ETH')}
+                className="w-full px-4 py-3 rounded-xl bg-transparent border-2 border-gold text-[var(--text)] font-sans focus:ring-2 focus:ring-gold"
+              >
                 <option value="BTC">Bitcoin (BTC)</option>
                 <option value="USDT">Tether (USDT)</option>
                 <option value="ETH">Ethereum (ETH)</option>
               </select>
             </div>
-            <button type="submit" disabled={loading || !amount} className="w-full py-3 rounded-xl font-sans font-bold shadow-gold text-lg gold-gradient-bg hover:scale-105 transition text-[#222] disabled:opacity-50">{loading ? 'Submitting...' : 'Submit Deposit Request'}</button>
+
+            {/* Wallet Address Display */}
+            <div className="bg-black/30 p-4 rounded-xl text-sm text-gray-300 mt-4">
+              <p className="mb-2">Send {currency} to this address:</p>
+              <div className="flex justify-between items-center">
+                <span className="break-all">{tokenAddresses[currency]}</span>
+                <button type="button" onClick={copyAddress} className="ml-2 text-gold hover:underline">Copy</button>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={loading || !amount}
+              className="w-full py-3 rounded-xl font-sans font-bold shadow-gold text-lg gold-gradient-bg hover:scale-105 transition text-[#222] disabled:opacity-50"
+            >
+              {loading ? 'Submitting...' : 'Submit Deposit Request'}
+            </button>
             {error && <ErrorMessage message={error} />}
           </form>
         </div>
+
+        {/* Deposit History */}
         <div className="glassy-card p-8">
           <h2 className="text-2xl font-serif mb-6 gold-text">My Deposit Requests</h2>
           <div className="space-y-4">
@@ -107,10 +150,19 @@ const Deposit: React.FC = () => {
                   </div>
                   <span className={`px-3 py-1 rounded-full text-sm font-sans font-semibold ${getStatusColor(deposit.status)}`}>{deposit.status}</span>
                 </div>
-                {deposit.approved_at && (<p className="text-sm text-gray-400 font-sans">{deposit.status === 'APPROVED' ? 'Approved' : 'Rejected'} on {new Date(deposit.approved_at).toLocaleDateString()}{deposit.approved_by && ` by ${deposit.approved_by}`}</p>)}
+                {deposit.approved_at && (
+                  <p className="text-sm text-gray-400 font-sans">
+                    {deposit.status === 'APPROVED' ? 'Approved' : 'Rejected'} on {new Date(deposit.approved_at).toLocaleDateString()}
+                    {deposit.approved_by && ` by ${deposit.approved_by}`}
+                  </p>
+                )}
               </div>
             ))}
-            {deposits.length === 0 && (<div className="text-center py-8 text-gray-400"><p className="font-sans">No deposit requests found</p></div>)}
+            {deposits.length === 0 && (
+              <div className="text-center py-8 text-gray-400">
+                <p className="font-sans">No deposit requests found</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -118,4 +170,4 @@ const Deposit: React.FC = () => {
   );
 };
 
-export default Deposit; 
+export default Deposit;

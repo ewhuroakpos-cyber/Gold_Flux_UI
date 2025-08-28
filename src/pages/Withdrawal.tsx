@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import api from '../utils/api';
-import ErrorMessage from '../components/ErrorMessage';
 import { useToast } from '../components/Toast';
 
 interface WithdrawalRequest {
@@ -13,10 +12,19 @@ interface WithdrawalRequest {
   approved_by?: string;
 }
 
-const Withdrawal: React.FC = () => {
+interface WithdrawalProps {
+  userWallet: {
+    balance: number;
+    address?: string;
+  };
+  onRefresh: () => void;
+}
+
+const Withdrawal: React.FC<WithdrawalProps> = ({ userWallet, onRefresh }) => {
   const [withdrawals, setWithdrawals] = useState<WithdrawalRequest[]>([]);
   const [amount, setAmount] = useState('');
   const [currency, setCurrency] = useState<'BTC' | 'USDT' | 'ETH'>('USDT');
+  const [walletAddress, setWalletAddress] = useState(userWallet?.address || '');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [fetchError, setFetchError] = useState('');
@@ -32,10 +40,9 @@ const Withdrawal: React.FC = () => {
       const response = await api.get('/user/withdrawals/');
       setWithdrawals(response.data);
     } catch (error: any) {
-      setFetchError('Failed to load withdrawals. Please try again.');
+      setFetchError(`Failed to load withdrawals. Please try again. ${error.message}`);
       setWithdrawals([]);
       toast.showToast('Failed to load withdrawals.', 'error');
-      console.error('Error fetching withdrawals:', error);
     } finally {
       setLoading(false);
     }
@@ -48,11 +55,13 @@ const Withdrawal: React.FC = () => {
     try {
       await api.post('/user/withdrawals/', {
         amount: parseFloat(amount),
-        currency
+        currency,
+        address: walletAddress || userWallet.address // fallback if no saved address
       });
       await fetchWithdrawals();
       setAmount('');
       toast.showToast('Withdrawal request submitted!', 'success');
+      onRefresh();
     } catch (error: any) {
       setError(error.response?.data?.error || 'Withdrawal request failed');
       toast.showToast(error.response?.data?.error || 'Withdrawal request failed', 'error');
@@ -78,20 +87,53 @@ const Withdrawal: React.FC = () => {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label className="block text-sm font-sans mb-2 gold-text">Amount</label>
-              <input type="number" step="0.01" value={amount} onChange={(e) => setAmount(e.target.value)} className="w-full px-4 py-3 rounded-xl bg-transparent border-2 border-gold text-[var(--text)] font-sans focus:ring-2 focus:ring-gold" placeholder="Enter amount" required />
+              <input
+                type="number"
+                step="0.01"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-transparent border-2 border-gold text-[var(--text)] font-sans focus:ring-2 focus:ring-gold"
+                placeholder="Enter amount"
+                required
+              />
             </div>
+
+            {/* Address Field */}
+            <div>
+              <label className="block text-sm font-sans mb-2 gold-text">Wallet Address</label>
+              <input
+                type="text"
+                value={walletAddress}
+                onChange={(e) => setWalletAddress(e.target.value)}
+                className="w-full px-4 py-3 rounded-xl bg-transparent border-2 border-gold text-[var(--text)] font-sans focus:ring-2 focus:ring-gold"
+                placeholder="Enter or use saved address"
+              />
+            </div>
+
             <div>
               <label className="block text-sm font-sans mb-2 gold-text">Currency</label>
-              <select value={currency} onChange={(e) => setCurrency(e.target.value as 'BTC' | 'USDT' | 'ETH')} className="w-full px-4 py-3 rounded-xl bg-transparent border-2 border-gold text-[var(--text)] font-sans focus:ring-2 focus:ring-gold">
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value as 'BTC' | 'USDT' | 'ETH')}
+                className="w-full px-4 py-3 rounded-xl bg-transparent border-2 border-gold text-[var(--text)] font-sans focus:ring-2 focus:ring-gold"
+              >
                 <option value="BTC">Bitcoin (BTC)</option>
                 <option value="USDT">Tether (USDT)</option>
                 <option value="ETH">Ethereum (ETH)</option>
               </select>
             </div>
-            <button type="submit" disabled={loading || !amount} className="w-full py-3 rounded-xl font-sans font-bold shadow-gold text-lg gold-gradient-bg hover:scale-105 transition text-[#222] disabled:opacity-50">{loading ? 'Submitting...' : 'Submit Withdrawal Request'}</button>
-            {error && <div className="text-red-400 font-semibold">{error}</div>}
+
+            <button
+              type="submit"
+              disabled={loading || !amount}
+              className="w-full py-3 rounded-xl font-sans font-bold shadow-gold text-lg gold-gradient-bg hover:scale-105 transition text-[#222] disabled:opacity-50"
+            >
+              {loading ? 'Submitting...' : 'Submit Withdrawal Request'}
+            </button>
           </form>
         </div>
+
+        {/* Withdrawal List */}
         <div className="glassy-card p-8">
           <h2 className="text-2xl font-serif mb-6 gold-text">My Withdrawal Requests</h2>
           <div className="space-y-4">
@@ -104,10 +146,19 @@ const Withdrawal: React.FC = () => {
                   </div>
                   <span className={`px-3 py-1 rounded-full text-sm font-sans font-semibold ${getStatusColor(withdrawal.status)}`}>{withdrawal.status}</span>
                 </div>
-                {withdrawal.approved_at && (<p className="text-sm text-gray-400 font-sans">{withdrawal.status === 'APPROVED' ? 'Approved' : 'Rejected'} on {new Date(withdrawal.approved_at).toLocaleDateString()}{withdrawal.approved_by && ` by ${withdrawal.approved_by}`}</p>)}
+                {withdrawal.approved_at && (
+                  <p className="text-sm text-gray-400 font-sans">
+                    {withdrawal.status === 'APPROVED' ? 'Approved' : 'Rejected'} on {new Date(withdrawal.approved_at).toLocaleDateString()}
+                    {withdrawal.approved_by && ` by ${withdrawal.approved_by}`}
+                  </p>
+                )}
               </div>
             ))}
-            {withdrawals.length === 0 && (<div className="text-center py-8 text-gray-400"><p className="font-sans">No withdrawal requests found</p></div>)}
+            {withdrawals.length === 0 && (
+              <div className="text-center py-8 text-gray-400">
+                <p className="font-sans">No withdrawal requests found</p>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -115,4 +166,4 @@ const Withdrawal: React.FC = () => {
   );
 };
 
-export default Withdrawal; 
+export default Withdrawal;
