@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useToast } from '../components/Toast';
 import authService from '../services/authService';
 
@@ -78,9 +78,9 @@ const Signup = () => {
         )}
         <div className="mt-6 text-center text-xs sm:text-sm text-gray-300">
           Already have an account?{' '}
-          <a href="/login" className="underline gold-text">
+          <Link to="/login" className="underline gold-text">
             Login
-          </a>
+          </Link>
         </div>
       </div>
     </div>

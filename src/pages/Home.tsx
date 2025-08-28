@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import LiveGoldChart from '../components/LiveGoldChart';
 
 const Home: React.FC = () => {
@@ -12,8 +13,8 @@ const Home: React.FC = () => {
           The premium platform for digital gold investment. Buy, sell, and lock gold with confidence. Enjoy luxury, security, and transparency.
         </p>
         <div className="flex flex-col sm:flex-row justify-center gap-6 mb-8">
-          <a href="/signup" className="px-8 py-3 rounded-2xl font-sans font-semibold shadow-gold text-lg gold-gradient-bg hover:scale-105 transition text-[#222]">Get Started</a>
-          <a href="/login" className="px-8 py-3 rounded-2xl font-sans font-semibold border-2 border-gold text-lg text-gold hover:bg-gold hover:text-[#222] transition">Login</a>
+          <Link to="/signup" className="px-8 py-3 rounded-2xl font-sans font-semibold shadow-gold text-lg gold-gradient-bg hover:scale-105 transition text-[#222]">Get Started</Link>
+          <Link to="/login" className="px-8 py-3 rounded-2xl font-sans font-semibold border-2 border-gold text-lg text-gold hover:bg-gold hover:text-[#222] transition">Login</Link>
         </div>
       </div>
       <div className="w-full glassy-card p-6 mb-8">
