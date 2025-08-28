@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ThemeProvider } from './ThemeContext';
 import { ToastProvider } from './components/Toast';
@@ -26,8 +26,18 @@ import WithdrawalsAdmin from './pages/admin/WithdrawalsAdmin';
 // Component to determine if sidebar should be shown
 const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
   const location = useLocation();
-  const isAuthenticated = authService.isAuthenticated();
-  const isAdmin = authService.isAdmin();
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const auth = await authService.isAuthenticated();
+      const admin = await authService.isAdmin();
+      setIsAuthenticated(auth);
+      setIsAdmin(admin);
+    };
+    checkAuth();
+  }, []);
   
   // Show sidebar only on authenticated pages
   const showSidebar =  isAuthenticated && (
@@ -43,7 +53,7 @@ const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
     <div className="App min-h-screen" style={{ color: 'var(--text)' }}>
       <Navbar />
       <div className="flex min-h-screen">
-        {showSidebar && <Sidebar isAdmin={isAdmin} />}
+        {showSidebar && <Sidebar isAdmin={Boolean(isAdmin)} />}
         <main 
           className={`flex-1 transition-all duration-300 ${
             showSidebar 

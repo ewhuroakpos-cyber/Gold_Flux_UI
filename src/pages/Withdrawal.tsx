@@ -13,11 +13,11 @@ interface WithdrawalRequest {
 }
 
 interface WithdrawalProps {
-  userWallet: {
-    balance: number;
+  userWallet?: {
+    balance?: number;
     address?: string;
   };
-  onRefresh: () => void;
+  onRefresh?: () => void;
 }
 
 const Withdrawal: React.FC<WithdrawalProps> = ({ userWallet, onRefresh }) => {
@@ -26,7 +26,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ userWallet, onRefresh }) => {
   const [currency, setCurrency] = useState<'BTC' | 'USDT' | 'ETH'>('USDT');
   const [walletAddress, setWalletAddress] = useState(userWallet?.address || '');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [Error, setError] = useState('');
   const [fetchError, setFetchError] = useState('');
   const toast = useToast();
 
@@ -42,7 +42,7 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ userWallet, onRefresh }) => {
     } catch (error: any) {
       setFetchError(`Failed to load withdrawals. Please try again. ${error.message}`);
       setWithdrawals([]);
-      toast.showToast('Failed to load withdrawals.', 'error');
+      toast.showToast('Failed to load withdrawals.', fetchError ? 'error' : 'info');
     } finally {
       setLoading(false);
     }
@@ -56,15 +56,15 @@ const Withdrawal: React.FC<WithdrawalProps> = ({ userWallet, onRefresh }) => {
       await api.post('/user/withdrawals/', {
         amount: parseFloat(amount),
         currency,
-        address: walletAddress || userWallet.address // fallback if no saved address
+        address: walletAddress || userWallet?.address // fallback if no saved address
       });
       await fetchWithdrawals();
       setAmount('');
       toast.showToast('Withdrawal request submitted!', 'success');
-      onRefresh();
+      onRefresh && onRefresh();
     } catch (error: any) {
       setError(error.response?.data?.error || 'Withdrawal request failed');
-      toast.showToast(error.response?.data?.error || 'Withdrawal request failed', 'error');
+      toast.showToast(error.response?.data?.error || 'Withdrawal request failed', Error ? 'error' : 'info');
     } finally {
       setLoading(false);
     }

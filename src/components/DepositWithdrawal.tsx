@@ -18,8 +18,6 @@ const DepositWithdrawal: React.FC<DepositWithdrawalProps> = ({
   const [currency, setCurrency] = useState<'BTC' | 'USDT' | 'ETH'>('USDT');
   const [loading, setLoading] = useState(false);
   const [depositReady, setDepositReady] = useState(false);
-  const [pendingAmount, setPendingAmount] = useState('');
-  const [pendingCurrency, setPendingCurrency] = useState<'BTC' | 'USDT' | 'ETH'>('USDT');
   const [userWallet, setUserWallet] = useState(user.wallet?.address || '');
   const [walletInput, setWalletInput] = useState('');
   const toast = useToast();
@@ -84,8 +82,6 @@ const DepositWithdrawal: React.FC<DepositWithdrawalProps> = ({
       toast.showToast(`${type} request submitted successfully!`, 'success');
       if (type === 'DEPOSIT') {
         setDepositReady(true);
-        setPendingAmount(amount);
-        setPendingCurrency(currency);
       } else {
         setAmount('');
         onRefresh();
